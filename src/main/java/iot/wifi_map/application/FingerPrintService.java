@@ -1,9 +1,9 @@
 package iot.wifi_map.application;
 
-import iot.wifi_map.application.dto.request.RegisterFingerPrintRequestDto;
-import iot.wifi_map.application.dto.response.RegisterFingerPrintResponseDto;
-import iot.wifi_map.domain.FingerPrint;
-import iot.wifi_map.domain.FingerPrintRepository;
+import iot.wifi_map.application.dto.request.RegisterRPRequestDto;
+import iot.wifi_map.application.dto.response.RegisterRPResponseDto;
+import iot.wifi_map.domain.RPRepository;
+import iot.wifi_map.domain.RP;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class FingerPrintService {
 
-    private final FingerPrintRepository fingerPrintRepository;
+    private final RPRepository repository;
 
     @Transactional
-    public RegisterFingerPrintResponseDto registerFingerPrint(RegisterFingerPrintRequestDto dto){
-        FingerPrint saveFingerPrint = dto.toEntity();
-        saveFingerPrint.setFingerPrint();
-        fingerPrintRepository.save(saveFingerPrint);
-        return new RegisterFingerPrintResponseDto();
+    public RegisterRPResponseDto registerRP(RegisterRPRequestDto dto){
+        RP newRP = dto.toEntity();
+        RP savedRP = repository.save(newRP);
+
+        return new RegisterRPResponseDto(savedRP.getId());
     }
 
 }

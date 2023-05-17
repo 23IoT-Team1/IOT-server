@@ -6,9 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,16 +19,22 @@ public class AP extends BaseEntity {
 
     private String bssid;
 
-    @OneToMany(mappedBy = "ap", cascade = CascadeType.ALL)
-    private List<FingerPrint> fingerPrints = new ArrayList<>();
+    private String rss;
 
-    public AP(String ssid, String bssid) {
+    private String rtt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    private RP rp;
+
+    public AP(String ssid, String bssid, String rss, String rtt) {
         this.ssid = ssid;
         this.bssid = bssid;
+        this.rss = rss;
+        this.rtt = rtt;
     }
 
-    public void addFingerPrint(FingerPrint fingerPrint){
-        this.fingerPrints.add(fingerPrint);
+    public void addRP(RP rp){
+        this.rp = rp;
     }
-
 }

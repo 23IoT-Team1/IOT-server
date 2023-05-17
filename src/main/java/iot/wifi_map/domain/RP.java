@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,15 +24,13 @@ public class RP extends BaseEntity {
     private String node; // 경로 or gridPoint 위치 이름
 
     @OneToMany(mappedBy = "rp", cascade = CascadeType.ALL)
-    private List<FingerPrint> fingerPrints = new ArrayList<>();
+    private List<AP> aps;
 
-    public RP(Integer floor, String gridPoint, String node) {
+    public RP(Integer floor, String gridPoint, String node, List<AP> aps) {
         this.floor = floor;
         this.gridPoint = gridPoint;
         this.node = node;
-    }
-
-    public void addFingerPrint(FingerPrint fingerPrint){
-        this.fingerPrints.add(fingerPrint);
+        this.aps = aps;
+        aps.forEach(ap -> ap.addRP(this));
     }
 }
