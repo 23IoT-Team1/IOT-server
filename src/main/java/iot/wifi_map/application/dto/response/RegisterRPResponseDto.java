@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterRPResponseDto {
 
-    private String message = "RP의 AP들이 저장되었습니다";
+    private String message = "해당 RP의 AP 정보들이 저장되었습니다";
 
-    private Long id;
+    private Long RP_id;
 
     public RegisterRPResponseDto(Long id){
-        this.id = id;
+        this.RP_id = id;
     }
 }
