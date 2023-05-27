@@ -15,25 +15,20 @@ public class RegisterAPRequestDto {
 
     private String rss;
 
-    private String rtt;
-
     @Builder
     public RegisterAPRequestDto(String ssid,
                                 String bssid,
-                                String rss,
-                                String rtt) {
+                                String rss) {
         this.ssid = ssid;
         this.bssid = bssid;
         this.rss = rss;
-        this.rtt = rtt;
     }
 
     public AP toEntity(){
         return new AP(
                 ssid,
                 bssid,
-                rss,
-                rtt
+                rss
         );
     }
 }

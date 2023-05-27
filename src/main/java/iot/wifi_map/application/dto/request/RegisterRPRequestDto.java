@@ -14,28 +14,28 @@ public class RegisterRPRequestDto {
 
     private Integer floor;
 
-    private String gridPoint;
+    private String rp;
 
-    private String node;
+    private String place;
 
     private List<RegisterAPRequestDto> registerAPRequestDtos;
 
     @Builder
     public RegisterRPRequestDto(Integer floor,
-                                String gridPoint,
-                                String node,
+                                String rp,
+                                String place,
                                 List<RegisterAPRequestDto> registerAPRequestDtos) {
         this.floor = floor;
-        this.gridPoint = gridPoint;
-        this.node = node;
+        this.rp = rp;
+        this.place = place;
         this.registerAPRequestDtos = registerAPRequestDtos;
     }
 
     public RP toEntity(){
         return new RP(
                 floor,
-                gridPoint,
-                node,
+                rp,
+                place,
                 registerAPRequestDtos.stream()
                         .map(registerAPRequestDto -> registerAPRequestDto.toEntity())
                         .collect(Collectors.toList())

@@ -1,7 +1,5 @@
 package iot.wifi_map;
 
-import java.sql.*;
-import java.util.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -15,7 +13,7 @@ import java.util.List;
 
 // 일단 weighted distance 로 평균과 분산을 사용한버전
 
-public class similarity {
+public class similarity2 {
 
     // 테스트용 db 연걸
     static Connection con = null;
@@ -114,7 +112,7 @@ public class similarity {
         //Weighted KNN을 사용하여 filtered_calc_list에서 K개를 뽑아서 비교 후 정답 도출
         calc_answer = weightedKNN(filtered_calc_list,k);
 
-        return calc_answer;
+        return calc_answer; // grid_point 리턴
 
     }
 
@@ -246,7 +244,8 @@ public class similarity {
  *
  * 현재 측정값 : grid : unknown , {A,-70dbm}, {C,-70dbm}
  *
- * grid: 4-1, { A, -70dbm}, { B, -70dbm} grid: 4-2, { A, -50dbm}, { C, -60dbm}
+ * grid: 4-1, { A, -70dbm}, { B, -70dbm}
+ * grid: 4-2, { A, -50dbm}, { C, -60dbm}
  * grid: 4-3, { A, -60dbm}, { C, -60dbm}
  *
  *

@@ -19,17 +19,17 @@ public class RP extends BaseEntity {
 
     private Integer floor;
 
-    private String gridPoint; // 4-1, 5-1 등등
+    private String rp;
 
-    private String node; // 경로 or gridPoint 위치 이름
+    private String place;
 
     @OneToMany(mappedBy = "rp", cascade = CascadeType.ALL)
     private List<AP> aps;
 
-    public RP(Integer floor, String gridPoint, String node, List<AP> aps) {
+    public RP(Integer floor, String rp, String place, List<AP> aps) {
         this.floor = floor;
-        this.gridPoint = gridPoint;
-        this.node = node;
+        this.rp = rp;
+        this.place = place;
         this.aps = aps;
         aps.forEach(ap -> ap.addRP(this));
     }

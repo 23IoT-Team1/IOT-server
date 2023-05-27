@@ -15,25 +15,20 @@ public class RegisterAPRequest {
 
     private String rss;
 
-    private String rtt;
-
     @Builder
     public RegisterAPRequest(String ssid,
                              String bssid,
-                             String rss,
-                             String rtt) {
+                             String rss) {
         this.ssid = ssid;
         this.bssid = bssid;
         this.rss = rss;
-        this.rtt = rtt;
     }
 
     public RegisterAPRequestDto toServiceDto(){
         return new RegisterAPRequestDto(
                 ssid,
                 bssid,
-                rss,
-                rtt
+                rss
         );
     }
 }

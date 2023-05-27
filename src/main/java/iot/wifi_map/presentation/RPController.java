@@ -1,7 +1,9 @@
 package iot.wifi_map.presentation;
 
-import iot.wifi_map.application.FingerPrintService;
+import iot.wifi_map.application.RPService;
+import iot.wifi_map.application.dto.response.FindPositionResponseDto;
 import iot.wifi_map.application.dto.response.RegisterRPResponseDto;
+import iot.wifi_map.presentation.dto.request.FindPositionRequest;
 import iot.wifi_map.presentation.dto.request.RegisterRPRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,13 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class FingerPrintController {
+public class RPController {
 
-    private final FingerPrintService fingerPrintService;
+    private final RPService RPService;
 
-    @PostMapping("/save")
+    @PostMapping("/rp")
     public ResponseEntity registerRP(@RequestBody RegisterRPRequest request){
-        RegisterRPResponseDto res = fingerPrintService.registerRP(request.toServiceDto());
+        RegisterRPResponseDto res = RPService.registerRP(request.toServiceDto());
+        return new ResponseEntity(res, HttpStatus.OK);
+    }
+
+    @PostMapping("/position")
+    public ResponseEntity findPosition(@RequestBody FindPositionRequest request){
+        FindPositionResponseDto res = RPService.findPosition(request.toServiceDto());
         return new ResponseEntity(res, HttpStatus.OK);
     }
 

@@ -21,17 +21,14 @@ public class AP extends BaseEntity {
 
     private String rss;
 
-    private String rtt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private RP rp;
 
-    public AP(String ssid, String bssid, String rss, String rtt) {
+    public AP(String ssid, String bssid, String rss) {
         this.ssid = ssid;
         this.bssid = bssid;
         this.rss = rss;
-        this.rtt = rtt;
     }
 
     public void addRP(RP rp){

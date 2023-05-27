@@ -14,28 +14,28 @@ public class RegisterRPRequest {
 
     private Integer floor;
 
-    private String gridPoint;
+    private String rp;
 
-    private String node;
+    private String place;
 
     private List<RegisterAPRequest> aps;
 
     @Builder
     public RegisterRPRequest(Integer floor,
-                             String gridPoint,
-                             String node,
+                             String rp,
+                             String place,
                              List<RegisterAPRequest> aps) {
         this.floor = floor;
-        this.gridPoint = gridPoint;
-        this.node = node;
+        this.rp = rp;
+        this.place = place;
         this.aps = aps;
     }
 
     public RegisterRPRequestDto toServiceDto(){
         return new RegisterRPRequestDto(
                 floor,
-                gridPoint,
-                node,
+                rp,
+                place,
                 aps.stream()
                         .map(RegisterAPRequest::toServiceDto)
                         .collect(Collectors.toList())
