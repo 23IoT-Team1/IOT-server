@@ -1,11 +1,24 @@
 spring:
+  # 운영 DB
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/wifi_map
+#    username: root
+#    password:
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: none
+#    open-in-view: true
+#    show-sql: true
+
+  # 테스트 DB
   datasource:
-    url: jdbc:mysql://localhost:3306/wifi_map
+    url: jdbc:mysql://localhost:3306/test
     username: root
     password:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     open-in-view: true
     show-sql: true
