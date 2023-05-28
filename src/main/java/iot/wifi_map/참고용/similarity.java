@@ -1,4 +1,4 @@
-package iot.wifi_map;
+package iot.wifi_map.참고용;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

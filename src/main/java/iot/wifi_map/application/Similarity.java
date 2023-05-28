@@ -15,6 +15,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class Similarity {
 
+    /**
+     *
+     * @param dataSet : DB에서 가져온 모든 ap List
+     * @param dto : 유저가 보낸 현재 위치 정보
+     * @param dataSetNum : DB에 저장되어있는 ap row 개수
+     * @return : rp
+     */
     public String findPosition(List<ap> dataSet,
                                FindPositionRequestDto dto,
                                Integer dataSetNum) {
