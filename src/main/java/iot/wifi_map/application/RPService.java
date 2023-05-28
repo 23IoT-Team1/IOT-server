@@ -4,6 +4,7 @@ import iot.wifi_map.application.dto.request.FindPositionRequestDto;
 import iot.wifi_map.application.dto.request.RegisterRPRequestDto;
 import iot.wifi_map.application.dto.response.FindPositionResponseDto;
 import iot.wifi_map.application.dto.response.RegisterRPResponseDto;
+import iot.wifi_map.application.dto.response.RemoveRpResponseDto;
 import iot.wifi_map.domain.AP;
 import iot.wifi_map.domain.APRepository;
 import iot.wifi_map.domain.RPRepository;
@@ -31,6 +32,12 @@ public class RPService {
         RP newRP = dto.toEntity();
         RP savedRP = rpRepository.save(newRP);
         return new RegisterRPResponseDto(savedRP.getId());
+    }
+
+    @Transactional
+    public RemoveRpResponseDto removeRP(Long rpId){
+        rpRepository.deleteById(rpId);
+        return new RemoveRpResponseDto(rpId);
     }
 
     public FindPositionResponseDto findPosition(FindPositionRequestDto dto){

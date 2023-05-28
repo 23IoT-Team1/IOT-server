@@ -252,6 +252,7 @@ class testCaseRp {
 
     public testCaseRp(FindPositionRequestDto dto) {
 
+        // 현재 측정되는 ap List 생성
         this.aps = dto.getAps().stream()
                 .map(ap -> new ap(
                                 ap.getSsid(),
