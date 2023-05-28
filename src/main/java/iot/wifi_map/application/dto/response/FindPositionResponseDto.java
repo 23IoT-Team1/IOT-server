@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FindPositionResponseDto {
 
+    private String rp;
 
-
+    public FindPositionResponseDto(String position) {
+        this.rp = position;
+    }
 }

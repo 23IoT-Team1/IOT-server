@@ -1,99 +1,29 @@
-package iot.wifi_map;
+package iot.wifi_map.application;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import iot.wifi_map.application.dto.request.FindPositionRequestDto;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 // 일단 weighted distance 로 평균과 분산을 사용한버전
+@Component
+@RequiredArgsConstructor
+public class Similarity {
 
-public class similarity2 {
+    public String findPosition(List<ap> dataSet,
+                                      FindPositionRequestDto dto,
+                                      Integer dataSetNum) {
 
-    // 테스트용 db 연걸
-    static Connection con = null;
-    static Statement stmt = null;
-    static String url = "jdbc:mysql://localhost/iot";
-    static String user = "root";
-    static String passwd = "12345";
-
-    static ResultSet rs;
-
-    // 데이터베이스 연결 함수
-    public static void connectDatabase() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(url, user, passwd);
-            stmt = con.createStatement();
-            System.out.println("MySQL server connect");
-        } catch (Exception e) {
-            System.out.println("MySQL server failed> " + e.toString());
-        }
-    }
-
-    public static void main(String[] args) {
-
-        try {
-
-            String position = findPosition();
-            System.out.println(position);
-            stmt.close();
-            con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static String findPosition() throws SQLException {
-
-        // db 연결
-        connectDatabase();
-
-        String sql;
         int numOfAp = 3; // 수신할 wifi 신호의 개수
         int k = 6; // KNN 알고리즘에 사용되는 k
         double revision = 0.6; // 보정값. 우리는 가장 강한 numOfAp개의 신호를 사용한다. 웬만한 경우에는 같은 위치에서 scan할 경우 가장 강한 wifi 신호도
         // 똑같겠지만, 그 순간 잠시 이상이 생겨 가장 강한 wifi의 신호가 달라질 수도 있기 때문에 보정값을 넣는다.
 
-        // ap 테이블의 행 개수
-        int dataSetNum = 0;
-        ap[] dataSet = null;
-
-        // 데이터셋 배열을 만들기 위해 지금까지 측정된 데이터 셋의 개수를 조회
-        sql = "select count(*) from ap;";
-        rs = stmt.executeQuery(sql);
-
-        // db에 저장되어 있는 데이터셋 count하기
-        if (rs.next()) {
-            dataSetNum = rs.getInt("count(*)");
-            dataSet = new ap[dataSetNum];
-            for (int i = 0; i < dataSetNum; i++) {
-                dataSet[i] = new ap();
-            }
-        }
-
-        // rp와 ap를 rp_id 속성으로 조인. create_at순으로 정렬해서 조회.
-        sql = "SELECT * FROM ap INNER JOIN rp ON ap.rp_id=rp.id order by ap.create_at; ";
-        rs = stmt.executeQuery(sql);
-
-        int count = 0;
-        while (rs.next()) {
-            dataSet[count].ssid = rs.getString("ssid");
-            dataSet[count].bssid = rs.getString("bssid");
-            dataSet[count].rss = rs.getString("rss");
-            dataSet[count].grid_point = rs.getString("grid_point");
-            dataSet[count].node = rs.getString("node");
-            dataSet[count].create_at = rs.getString("create_at");
-            count++;
-        }
-
-        testCaseRp testCase = new testCaseRp(); // 현재 측정된 값
+        testCaseRp testCase = new testCaseRp(dto); // 현재 측정된 값
 
         ArrayList<calc> calc_list;
         ArrayList<calc> filtered_calc_list; // filtering할 calc_list
@@ -108,23 +38,20 @@ public class similarity2 {
         filtered_calc_list = filterCalcList(calc_list, revision);
 
 
-
         //Weighted KNN을 사용하여 filtered_calc_list에서 K개를 뽑아서 비교 후 정답 도출
-        calc_answer = weightedKNN(filtered_calc_list,k);
+        calc_answer = weightedKNN(filtered_calc_list, k);
 
         return calc_answer; // grid_point 리턴
 
     }
 
-    public static String weightedKNN(ArrayList<calc> filtered_calc_list,int k)
-    {
+    public String weightedKNN(ArrayList<calc> filtered_calc_list, int k) {
 
         //euclidean distance순으로 정렬하고 k개만큼 뽑은 후 count가 크고 ed가 작을수록 유사. 다만 count가 더 작은데 ed가 더 작은 경우는?
 
-        Collections.sort(filtered_calc_list,new Comparator<calc>() {
-            public int compare(calc a,calc b)
-            {
-                if(a.EuclideanDistance>b.EuclideanDistance)
+        Collections.sort(filtered_calc_list, new Comparator<calc>() {
+            public int compare(calc a, calc b) {
+                if (a.EuclideanDistance > b.EuclideanDistance)
                     return 1;
                 else
                     return -1;
@@ -137,7 +64,7 @@ public class similarity2 {
 
     }
 
-    public static ArrayList<calc> filterCalcList(ArrayList<calc> calc_list, double revisionValue) {
+    public ArrayList<calc> filterCalcList(ArrayList<calc> calc_list, double revisionValue) {
 
         ArrayList<calc> filtered_calc_list = new ArrayList<calc>();
 
@@ -154,8 +81,9 @@ public class similarity2 {
 
     }
 
-    public static void weightedEuclideanDistance(ArrayList<calc> calc_list, ap[] dataSet, testCaseRp testCase,
-                                                 int dataSetNum, int numOfAp, int k) {
+    public void weightedEuclideanDistance(ArrayList<calc> calc_list, List<ap> dataSet, testCaseRp testCase,
+                                          Integer dataSetNum, int numOfAp, int k) {
+
 
         String[] testCaseBssid = new String[numOfAp];
         for (int i = 0; i < numOfAp; i++) {
@@ -168,14 +96,14 @@ public class similarity2 {
 
             for (int j = 0; j < numOfAp; j++) {
                 // 현재 측정된 값에 포함된 ap가 dataset에 있는 경우
-                if (Arrays.asList(testCaseBssid).contains(dataSet[(numOfAp * i) + j].bssid)) {
+                if (Arrays.asList(testCaseBssid).contains(dataSet.get((numOfAp * i) + j).bssid)) {
 
                     // Weighted Euclidean distance 구함. 관측 rss값과 데이터셋 rss값의 차를 구한다음 제곱을하고 분산값으로 나누어준다
                     weightedEuclideanDistance += Math.sqrt(Math
                             .pow(Integer
-                                    .parseInt(testCase.aps[Arrays.asList(testCaseBssid)
-                                            .indexOf(dataSet[(numOfAp * i) + j].bssid)].rss.replace("dbm", "").trim())
-                                    - Integer.parseInt(dataSet[(numOfAp * i) + j].rss.replace("dbm", "").trim()), 2)
+                                    .parseInt(testCase.aps.get(Arrays.asList(testCaseBssid)
+                                            .indexOf(dataSet.get((numOfAp * i) + j).bssid)).rss.replace("dbm", "").trim())
+                                    - Integer.parseInt(dataSet.get((numOfAp * i) + j).rss.replace("dbm", "").trim()), 2)
                             / calc_list.get(i).variance);
                 }
             }
@@ -188,7 +116,7 @@ public class similarity2 {
 
     }
 
-    public static ArrayList<calc> calculateAvgAndVar(ap[] dataSet, testCaseRp testCase, int dataSetNum, int numOfAp) {
+    public ArrayList<calc> calculateAvgAndVar(List<ap> dataSet, testCaseRp testCase, Integer dataSetNum, int numOfAp) {
         ArrayList<calc> calc_list = new ArrayList<>();
 
         String[] testCaseBssid = new String[numOfAp];
@@ -199,19 +127,19 @@ public class similarity2 {
         // 저장된 데이터셋에서 데이터를 하나씩 가져온다.
         for (int i = 0; i < dataSetNum / numOfAp; i++) {
             // calc 초기화
-            calc c = new calc(dataSet[i * numOfAp].grid_point);
+            calc c = new calc(dataSet.get(i * numOfAp).rp);
             int sum = 0;
             double variance = 0;
 
             for (int j = 0; j < numOfAp; j++) {
                 // 현재 측정된 값에 포함된 ap가 dataset에 있는 경우
-                if (Arrays.asList(testCaseBssid).contains(dataSet[(numOfAp * i) + j].bssid)) {
+                if (Arrays.asList(testCaseBssid).contains(dataSet.get((numOfAp * i) + j).bssid)) {
 
                     // 일치하는 ap의 수 count
                     c.count++;
 
                     // 두 rss 차의 절댓값을 구함
-                    sum += Integer.parseInt(dataSet[(numOfAp * i) + j].rss.replace("dbm", "").trim());
+                    sum += Integer.parseInt(dataSet.get((numOfAp * i) + j).rss.replace("dbm", "").trim());
                 }
             }
             // 각 차의 합을 일치하는 ap의 갯수인 count로 나눠 평균값을 구한다.
@@ -219,11 +147,11 @@ public class similarity2 {
 
             for (int k = 0; k < numOfAp; k++) {
                 // 현재 측정된 값에 포함된 ap가 dataset에 있는 경우
-                if (Arrays.asList(testCaseBssid).contains(dataSet[(numOfAp * i) + k].bssid)) {
+                if (Arrays.asList(testCaseBssid).contains(dataSet.get((numOfAp * i) + k).bssid)) {
 
                     // 데이터셋 rss값에서 평균 rss값을 빼고 제곱을 한 다음
                     variance += Math
-                            .pow(Integer.parseInt(dataSet[(numOfAp * i) + k].rss.replace("dbm", "").trim()) - c.avg, 2);
+                            .pow(Integer.parseInt(dataSet.get((numOfAp * i) + k).rss.replace("dbm", "").trim()) - c.avg, 2);
                 }
             }
             // 데이터셋 rss값에서 평균 rss값을 빼고 제곱을 한 후 전체 개수로 나눠준다.
@@ -297,39 +225,55 @@ class calc implements Comparable<calc> {
     }
 }
 
+@NoArgsConstructor
+@Getter
 class ap {
-    String ssid, bssid, rss;
-    String grid_point = null, node = null, create_at = null;
+    String ssid;
+    String bssid;
+    String rss;
+    String rp = null;
+    String place = null;
 
+    public ap(String ssid,
+              String bssid,
+              String rss,
+              String rp,
+              String place) {
+        this.ssid = ssid;
+        this.bssid = bssid;
+        this.rss = rss;
+        this.rp = rp;
+        this.place = place;
+    }
+
+    public ap(String ssid,
+              String bssid,
+              String rss) {
+        this.ssid = ssid;
+        this.bssid = bssid;
+        this.rss = rss;
+    }
 }
 
-// 테스트용으로 만듦..  알고싶은 현재 위치에 대한 정보..
+// 알고싶은 현재 위치에 대한 정보..
 class testCaseRp {
 
-    ap[] aps;
+    List<ap> aps;
 
-    public testCaseRp() {
-        aps = new ap[3];
+    public testCaseRp(FindPositionRequestDto dto) {
 
-        aps[0] = new ap();
-        aps[0].ssid = "GC-WIFI1";
-        aps[0].bssid = "aa";
-        aps[0].rss = "-72dbm";
-
-        aps[1] = new ap();
-        aps[1].ssid = "GC-WIFI2";
-        aps[1].bssid = "bb";
-        aps[1].rss = "-61dbm";
-
-        aps[2] = new ap();
-        aps[2].ssid = "GC-WIFI3";
-        aps[2].bssid = "cc";
-        aps[2].rss = "-79dbm";
-
+        this.aps = dto.getAps().stream()
+                .map(ap -> new ap(
+                                ap.getSsid(),
+                                ap.getBssid(),
+                                ap.getRss()
+                        )
+                )
+                .collect(Collectors.toList());
     }
 
     public String getBssid(int index) {
-        return aps[index].bssid;
+        return aps.get(index).bssid;
     }
 
 }
