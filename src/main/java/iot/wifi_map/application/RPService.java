@@ -40,6 +40,11 @@ public class RPService {
         return new RemoveRpResponseDto(rpId);
     }
 
+    @Transactional
+    public void removeAllRP(){
+        rpRepository.deleteAll();
+    }
+
     public FindPositionResponseDto findPosition(FindPositionRequestDto dto){
 
         Integer numberOfAp = apRepository.getNumberOfAp();
