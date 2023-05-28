@@ -1,6 +1,7 @@
 package iot.wifi_map.application;
 
 import iot.wifi_map.application.dto.request.FindPositionRequestDto;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ import java.util.stream.Collectors;
 public class Similarity {
 
     public String findPosition(List<ap> dataSet,
-                                      FindPositionRequestDto dto,
-                                      Integer dataSetNum) {
+                               FindPositionRequestDto dto,
+                               Integer dataSetNum) {
 
         int numOfAp = 3; // 수신할 wifi 신호의 개수
         int k = 6; // KNN 알고리즘에 사용되는 k
@@ -58,9 +59,15 @@ public class Similarity {
             }
         });
 
-        List<calc> k_calc_list = filtered_calc_list.subList(0, k);
+        // 예외처리
+        List<calc> k_calc_list;
+        if (filtered_calc_list.size() <= k) {
+            k_calc_list = filtered_calc_list; // filtered_calc_list 크기가 k보다 작거나 같을 경우 모든 요소를 포함하는 서브리스트로 설정
+        } else {
+            k_calc_list = filtered_calc_list.subList(0, k); // filtered_calc_list 크기가 k보다 클 경우 시작부터 k-1까지의 요소를 포함하는 서브리스트로 설정
+        }
 
-        return k_calc_list.get(0).grid_point;
+        return k_calc_list.get(0).rp;
 
     }
 
@@ -142,8 +149,14 @@ public class Similarity {
                     sum += Integer.parseInt(dataSet.get((numOfAp * i) + j).rss.replace("dbm", "").trim());
                 }
             }
-            // 각 차의 합을 일치하는 ap의 갯수인 count로 나눠 평균값을 구한다.
-            c.avg = sum / c.count;
+
+            // 예외처리
+            if(c.count == 0){
+                c.avg = 0;
+            }else {
+                // 각 차의 합을 일치하는 ap의 갯수인 count로 나눠 평균값을 구한다.
+                c.avg = sum / c.count;
+            }
 
             for (int k = 0; k < numOfAp; k++) {
                 // 현재 측정된 값에 포함된 ap가 dataset에 있는 경우
@@ -182,33 +195,21 @@ public class Similarity {
  * 유사도가 더 높다면 보정값을 넣어 그것을 선택해야 될 거 같음.
  */
 class calc implements Comparable<calc> {
-    String grid_point = null;
+    String rp = null;
     int count = 0;
     double avg = 0;
     double EuclideanDistance = 0;
     double variance = 0;
 
-    public calc() {
-        this.grid_point = null;
+    public calc(String rp) {
+        this.rp = rp;
         this.count = 0;
         this.avg = 0;
         this.variance = 0;
         this.EuclideanDistance = 0;
     }
 
-    public calc(String grid_point) {
-        this.grid_point = grid_point;
-        this.count = 0;
-        this.avg = 0;
-        this.variance = 0;
-        this.EuclideanDistance = 0;
-    }
-
-    /*
-     * DB에 저장된 wifi rss 데이터셋을 가져와서 현재 위치와의 유사도순으로 정렬할 때 사용.
-     *
-     *
-     */
+    // DB에 저장된 wifi rss 데이터셋을 가져와서 현재 위치와의 유사도순으로 정렬할 때 사용.
     @Override
     public int compareTo(calc c) {
         if (c.count < count) {
@@ -226,6 +227,7 @@ class calc implements Comparable<calc> {
 }
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 class ap {
     String ssid;
@@ -233,18 +235,6 @@ class ap {
     String rss;
     String rp = null;
     String place = null;
-
-    public ap(String ssid,
-              String bssid,
-              String rss,
-              String rp,
-              String place) {
-        this.ssid = ssid;
-        this.bssid = bssid;
-        this.rss = rss;
-        this.rp = rp;
-        this.place = place;
-    }
 
     public ap(String ssid,
               String bssid,
