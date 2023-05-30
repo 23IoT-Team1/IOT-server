@@ -48,7 +48,7 @@ public class RPService {
     public FindPositionResponseDto findPosition(FindPositionRequestDto dto){
 
         Integer numberOfAp = apRepository.getNumberOfAp();
-        List<AP> aps = apRepository.findAll(); // 꼭 등록된 순서대로 가져와야하나?
+        List<AP> aps = apRepository.findAll();
         List<ap> dataSet = aps.stream()
                 .map(ap -> new ap(
                         ap.getSsid(),

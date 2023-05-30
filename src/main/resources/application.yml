@@ -3,7 +3,7 @@ spring:
 #  datasource:
 #    url: jdbc:mysql://localhost:3306/wifi_map
 #    username: root
-#    password:
+#    password: 1234
 #
 #  jpa:
 #    hibernate:
@@ -15,7 +15,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/test
     username: root
-    password:
+    password: 1234
 
   jpa:
     hibernate:
