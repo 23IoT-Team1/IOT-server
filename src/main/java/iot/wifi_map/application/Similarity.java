@@ -153,7 +153,7 @@ public class Similarity {
                     c.count++;
 
                     // 두 rss 차의 절댓값을 구함
-                    sum += Integer.parseInt(dataSet.get((numOfAp * i) + j).rss.replace("dbm", "").trim());
+                    sum += Integer.parseInt(dataSet.get((numOfAp * i) + j).rss.replace("dbm", "").trim()) - Integer.parseInt(testCase.getRssFromBssid(dataSet.get((numOfAp * i) + j).bssid).replace("dbm","").trim());
                 }
             }
 
@@ -272,6 +272,16 @@ class testCaseRp {
 
     public String getBssid(int index) {
         return aps.get(index).bssid;
+    }
+
+    public String getRssFromBssid(String bssid)
+    {
+        for(ap ap:aps)
+        {
+            if(ap.bssid.equals(bssid))
+                return ap.rss;
+        }
+        return null;
     }
 
 }
